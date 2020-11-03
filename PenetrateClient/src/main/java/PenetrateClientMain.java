@@ -16,8 +16,8 @@ public class PenetrateClientMain {
         serviceConnect.startServiceConnect();
 
         ForwardConnect forwardConnect = new ForwardConnect();
-        forwardConnect.connectForwardService();
         forwardConnect.serviceConnect = serviceConnect;
+        forwardConnect.connectForwardService();
         System.out.println("启动成功");
         while (true) {
             try {

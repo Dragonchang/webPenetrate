@@ -21,7 +21,7 @@ public class RequestResponseAcceptor implements Runnable{
      * 转发client 端连接的socket
      * TODO启动poller线程池进行读写的处理
      */
-    private Socket requestClientSocket = null;
+    public Socket requestClientSocket = null;
 
     RequestResponseListener listener;
 
@@ -46,35 +46,34 @@ public class RequestResponseAcceptor implements Runnable{
      * 处理新的请求
      */
     private void dealWithNewRequest() {
-        Socket writeSocket = listener.getForwardListen().getForwardSocket();
+        Socket forwardSocket = listener.getForwardListen().getForwardSocket();
         byte[] b = new byte[1024];
         InputStream is = null;
         OutputStream os = null;
         try {
             is = requestClientSocket.getInputStream();
-            if(writeSocket != null && !writeSocket.isClosed()) {
-                os = writeSocket.getOutputStream();
+            if(forwardSocket != null && !forwardSocket.isClosed()) {
+                os = forwardSocket.getOutputStream();
             }
             int size = 0;
-            while(size > -1){
-                size = is.read(b);
+            while((size = is.read(b)) != -1){
                 System.out.println("size: "+size);
                 String res = new String(b,"UTF-8");
                 System.out.println(res);
-                if (size > -1 && os!= null && !(writeSocket == null || writeSocket.isClosed())) {
+                if (size > -1 && os!= null && !(forwardSocket == null || forwardSocket.isClosed())) {
                     os.write(b, 0, size);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                if (is != null) {
+//                    is.close();
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
         }
     }
 }

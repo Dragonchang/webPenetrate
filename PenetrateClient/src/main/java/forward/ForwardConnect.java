@@ -14,8 +14,8 @@ public class ForwardConnect {
     /**
      * 转发服务地址
      */
-    private static String forwardServiceAddress = "10.16.33.73";
-
+    //private static String forwardServiceAddress = "10.16.33.73";
+    private static String forwardServiceAddress = "localhost";
     /**
      * 转发服务端口
      */
@@ -26,6 +26,9 @@ public class ForwardConnect {
      */
     public Socket forwardServiceClient;
 
+    /**
+     * 和 webservice 的连接
+     */
     public ServiceConnect serviceConnect;
     /**
      * 连接到转发服务端
@@ -33,7 +36,8 @@ public class ForwardConnect {
     public void connectForwardService() {
         try {
             forwardServiceClient = new Socket(forwardServiceAddress, forwardServicePort);
-            startReadWriteThread();
+            startForwardReadWriteThread();
+            startWebReadWriteThread();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -41,14 +45,22 @@ public class ForwardConnect {
 
     /**
      * 启动对转发服务的连接的读写线程
-     * 将请求读出写入到webService的connect
-     * 同时将webService的connect写入到转发服务的连接上
+     *
      */
-    public void startReadWriteThread() {
-        ReadWriteRunnable runnable = new ReadWriteRunnable(this);
-        String threadName = "read-write";
+    public void startForwardReadWriteThread() {
+        ForwardReadWriteRunnable runnable = new ForwardReadWriteRunnable(this);
+        String threadName = "forward-read-write";
         Thread t = new Thread(runnable, threadName);
         t.start();
     }
 
+    /**
+     * 启动对web service连接的读写线程
+     */
+    public void startWebReadWriteThread() {
+        WebReadWriteRunnable runnable = new WebReadWriteRunnable(this);
+        String threadName = "web-read-write";
+        Thread t = new Thread(runnable, threadName);
+        t.start();
+    }
 }

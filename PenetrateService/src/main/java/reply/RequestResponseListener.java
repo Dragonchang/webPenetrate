@@ -30,7 +30,7 @@ public class RequestResponseListener {
     /**
      * 请求响应acceptor
      */
-    private RequestResponseAcceptor acceptor;
+    public RequestResponseAcceptor acceptor;
 
     /**
      * 转发连接的管理服务
@@ -45,6 +45,7 @@ public class RequestResponseListener {
         try {
             requestListenSocket = new ServerSocket(requestListenPort);
             startAcceptorThread();
+            startReadWriteThread();
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -58,6 +59,16 @@ public class RequestResponseListener {
         acceptor = new RequestResponseAcceptor(this, requestListenSocket);
         String threadName = "request-Acceptor";
         Thread t = new Thread(acceptor, threadName);
+        t.start();
+    }
+
+    /**
+     *
+     */
+    public void startReadWriteThread() {
+        ReadForwardAndWriteReplyRunnable runnable = new ReadForwardAndWriteReplyRunnable(this);
+        String threadName = "read-write";
+        Thread t = new Thread(runnable, threadName);
         t.start();
     }
 
