@@ -12,7 +12,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="PenetrateClient" target="1.5" />
-      <module name="PenetrateService" target="1.5" />
+      <module name="PenetrateService" target="6" />
     </bytecodeTargetLevel>
   </component>
 </project>
