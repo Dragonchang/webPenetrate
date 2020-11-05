@@ -2,7 +2,11 @@ package forward;
 
 import webService.ServiceConnect;
 
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
 
 /**
  * @program: webPenetrate
@@ -30,17 +34,27 @@ public class ForwardConnect {
      * 和 webservice 的连接
      */
     public ServiceConnect serviceConnect;
+
+    InetSocketAddress isa = new InetSocketAddress(forwardServiceAddress, forwardServicePort);
+
+    Selector selector;
+
+    public ForwardConnect(Selector selector) {
+        this.selector = selector;
+    }
     /**
      * 连接到转发服务端
      */
-    public void connectForwardService() {
+    public SocketChannel connectForwardService() {
         try {
-            forwardServiceClient = new Socket(forwardServiceAddress, forwardServicePort);
-            startForwardReadWriteThread();
-            startWebReadWriteThread();
+            SocketChannel sc = SocketChannel.open(isa);
+            sc.configureBlocking(false);
+            sc.register(selector, SelectionKey.OP_READ);
+            return sc;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     /**

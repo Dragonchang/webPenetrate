@@ -103,9 +103,10 @@ public class RequestExecuteManger {
     public void processEnd(RequestRunnable requestRunnable) {
         if(mReadyRequests.size() > waringCount
                 || mRunningRequests.size() > waringCount) {
-            System.out.println("processEnd this is warning log for mReadyCommands size : "+mReadyRequests.size()
-                    +" mRunningCommands size: "+mRunningRequests.size());
+            System.out.println("processEnd this is warning log for mReadyRequests size : "+mReadyRequests.size()
+                    +" mRunningRequests size: "+mRunningRequests.size());
         }
+        System.out.println("一个请求处理结束");
         for (Iterator<RequestRunnable> i = mRunningRequests.iterator(); i.hasNext(); ) {
             RequestRunnable request = i.next();
             if (request == requestRunnable) {
@@ -133,8 +134,8 @@ public class RequestExecuteManger {
     private void enqueueRequest(RequestRunnable requestRunnable) {
         if(mReadyRequests.size() > waringCount
                 || mRunningRequests.size() > waringCount) {
-            System.out.println("enqueueCommand this is warning log for mReadyCommands size : "+mReadyRequests.size()
-                    +" mRunningCommands size: "+mRunningRequests.size());
+            System.out.println("enqueueRequest this is warning log for mReadyRequests size : "+mReadyRequests.size()
+                    +" mRunningRequests size: "+mRunningRequests.size());
         }
         if(requestRunnable == null) {
             return;

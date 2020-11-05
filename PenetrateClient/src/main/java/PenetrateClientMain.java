@@ -1,4 +1,5 @@
 import forward.ForwardConnect;
+import forward.ForwardConnectManger;
 import webService.ServiceConnect;
 
 import java.io.IOException;
@@ -12,20 +13,9 @@ import java.io.IOException;
 public class PenetrateClientMain {
 
     public static void main(String[] args) throws IOException {
-        ServiceConnect serviceConnect = new ServiceConnect();
-        serviceConnect.startServiceConnect();
 
-        ForwardConnect forwardConnect = new ForwardConnect();
-        forwardConnect.serviceConnect = serviceConnect;
-        forwardConnect.connectForwardService();
-        System.out.println("启动成功");
-        while (true) {
-            try {
-                Thread.sleep(10000);
-            } catch (Exception e) {
-
-            }
-        }
+        ForwardConnectManger manger = new ForwardConnectManger();
+        manger.start();
     }
 
 }
