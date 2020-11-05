@@ -1,9 +1,14 @@
 package reply;
 
-import forward.ForwardAcceptor;
+import execute.RequestExecuteManger;
 import forward.ForwardListener;
 
-import java.net.ServerSocket;
+import java.net.InetSocketAddress;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.Iterator;
 
 /**
  * @program: webPenetrate
@@ -20,17 +25,7 @@ public class RequestResponseListener {
     /**
      * 处理请求和响应服务监听socket
      */
-    private ServerSocket requestListenSocket;
-
-    /**
-     * 服务启动是否成功
-     */
-    private boolean isSuccess;
-
-    /**
-     * 请求响应acceptor
-     */
-    public RequestResponseAcceptor acceptor;
+    private ServerSocketChannel serverSocket;
 
     /**
      * 转发连接的管理服务
@@ -38,38 +33,57 @@ public class RequestResponseListener {
     private ForwardListener listener;
 
     /**
-     * 启动请求和响应服务的监听
+     * 服务管理对象
      */
-    public void startListen() {
-        isSuccess = false;
+    private RequestExecuteManger manager;
+
+    private Selector selector;
+
+    public RequestResponseListener(RequestExecuteManger manager) {
+        this.manager = manager;
         try {
-            requestListenSocket = new ServerSocket(requestListenPort);
-            startAcceptorThread();
-            startReadWriteThread();
+            selector = Selector.open();
+            serverSocket = ServerSocketChannel.open();
+            InetSocketAddress isa = new InetSocketAddress("127.0.0.1", requestListenPort);
+            serverSocket.socket().bind(isa);
+            serverSocket.configureBlocking(false);
+            serverSocket.register(selector, SelectionKey.OP_ACCEPT);
         } catch (Exception e) {
             e.printStackTrace();
-            return;
         }
     }
 
     /**
-     * 启动接收转发连接的socket的accept线程
+     * 启动请求和响应服务的监听
      */
-    protected void startAcceptorThread() {
-        acceptor = new RequestResponseAcceptor(this, requestListenSocket);
-        String threadName = "request-Acceptor";
-        Thread t = new Thread(acceptor, threadName);
-        t.start();
-    }
+    public void startAccept() {
+        try {
+            while (true) {
+                System.out.println("开始accept用户请求");
+                int count = selector.select();
+                if(count > 0) {
+                    Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
+                    while (iterator.hasNext()) {
+                        SelectionKey key = iterator.next();
 
-    /**
-     *
-     */
-    public void startReadWriteThread() {
-        ReadForwardAndWriteReplyRunnable runnable = new ReadForwardAndWriteReplyRunnable(this);
-        String threadName = "read-write";
-        Thread t = new Thread(runnable, threadName);
-        t.start();
+                        //若此key的通道是等待接受新的套接字连接
+                        if (key.isAcceptable()) {
+                            //一定要把这个accpet状态的服务器key去掉，否则会出错
+                            iterator.remove();
+                            ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
+                            //接受socket
+                            SocketChannel socket = serverChannel.accept();
+                            System.out.println(key.toString() + socket.toString()+ " 发起请求");
+                            socket.configureBlocking(false);
+                            manager.dealWithNewRequest(socket);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void setForwardListen(ForwardListener forwardListener) {

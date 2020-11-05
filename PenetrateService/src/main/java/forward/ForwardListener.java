@@ -1,7 +1,12 @@
 package forward;
 
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
 /**
  * @program: webPenetrate
@@ -18,37 +23,40 @@ public class ForwardListener {
     /**
      * 转发服务监听socket
      */
-    private ServerSocket forwardListenSocket;
+    private ServerSocketChannel forwardListenSocket;
 
+    private Selector selector;
 
-
-    /**
-     * 服务启动是否成功
-     */
-    private boolean isSuccess;
+    private ForwardConnectPoolManager poolManager;
 
     private ForwardAcceptor acceptor;
+
+    public ForwardListener(ForwardConnectPoolManager poolManager) {
+        this.poolManager = poolManager;
+    }
 
     /**
      * 启动转发服务的监听
      */
     public void startForwardListen() {
-        isSuccess = false;
         try {
-            forwardListenSocket = new ServerSocket(forwardListenPort);
+            selector = Selector.open();
+            forwardListenSocket = ServerSocketChannel.open();
+            InetSocketAddress isa = new InetSocketAddress("127.0.0.1", forwardListenPort);
+            forwardListenSocket.socket().bind(isa);
+            forwardListenSocket.configureBlocking(false);
+            forwardListenSocket.register(selector, SelectionKey.OP_ACCEPT);
             startAcceptorThread();
         } catch (Exception e) {
             e.printStackTrace();
-            return;
         }
-        isSuccess = true;
     }
 
     /**
      * 启动接收转发连接的socket的accept线程
      */
     protected void startAcceptorThread() {
-        acceptor = new ForwardAcceptor(forwardListenSocket);
+        acceptor = new ForwardAcceptor(selector);
         String threadName = "forward-Acceptor";
         Thread t = new Thread(acceptor, threadName);
         t.start();
@@ -58,7 +66,7 @@ public class ForwardListener {
      * 获取转发client端的连接
      * @return
      */
-    public Socket getForwardSocket() {
+    public SocketChannel getForwardSocket() {
         return acceptor.getForwardConnect();
     }
 }

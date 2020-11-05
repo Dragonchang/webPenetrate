@@ -1,5 +1,4 @@
-import forward.ForwardListener;
-import reply.RequestResponseListener;
+import execute.RequestExecuteManger;
 
 import java.io.IOException;
 
@@ -11,18 +10,7 @@ import java.io.IOException;
  **/
 public class PenetrateMain {
     public static void main(String[] args) throws IOException {
-        ForwardListener forwardListener = new ForwardListener();
-        forwardListener.startForwardListen();
-        RequestResponseListener requestResponseListener = new RequestResponseListener();
-        requestResponseListener.startListen();
-        requestResponseListener.setForwardListen(forwardListener);
-        System.out.println("启动成功");
-        while (true) {
-            try {
-                Thread.sleep(10000);
-            } catch (Exception e) {
-
-            }
-        }
+        RequestExecuteManger manager = new RequestExecuteManger();
+        manager.startService();
     }
 }
