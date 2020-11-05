@@ -46,7 +46,7 @@ public class ForwardAcceptor implements Runnable{
                             ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
                             //接受socket
                             penetrateClientSocket = serverChannel.accept();
-                            System.out.println(key.toString() + penetrateClientSocket.toString()+" 转发连接连接成功");
+                            System.out.println(penetrateClientSocket.toString()+" 转发连接连接成功");
                             penetrateClientSocket.configureBlocking(false);
                         }
                     }

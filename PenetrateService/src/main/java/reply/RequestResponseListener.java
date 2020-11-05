@@ -28,11 +28,6 @@ public class RequestResponseListener {
     private ServerSocketChannel serverSocket;
 
     /**
-     * 转发连接的管理服务
-     */
-    private ForwardListener listener;
-
-    /**
      * 服务管理对象
      */
     private RequestExecuteManger manager;
@@ -73,7 +68,7 @@ public class RequestResponseListener {
                             ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
                             //接受socket
                             SocketChannel socket = serverChannel.accept();
-                            System.out.println(key.toString() + socket.toString()+ " 发起请求");
+                            System.out.println(socket.toString()+ " 发起请求");
                             socket.configureBlocking(false);
                             manager.dealWithNewRequest(socket);
                         }
@@ -83,14 +78,5 @@ public class RequestResponseListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-    }
-
-    public void setForwardListen(ForwardListener forwardListener) {
-        this.listener = forwardListener;
-    }
-
-    public ForwardListener getForwardListen() {
-        return listener;
     }
 }

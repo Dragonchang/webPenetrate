@@ -48,7 +48,6 @@ public class RequestExecuteManger {
         forwardConnectPoolManager.startConnectPool();
 
         requestResponseListener = new RequestResponseListener(this);
-        requestResponseListener.setForwardListen(forwardConnectPoolManager.getForwardListener());
         requestResponseListener.startAccept();
     }
 

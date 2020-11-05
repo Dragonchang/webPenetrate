@@ -36,10 +36,6 @@ public class ForwardConnectPoolManager {
         return 1;
     }
 
-    public ForwardListener getForwardListener() {
-        return this.forwardListener;
-    }
-
     public SocketChannel getAvailableConnect() {
         //TODO 连接池获取
         SocketChannel availableConnect = forwardListener.getForwardSocket();
