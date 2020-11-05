@@ -139,7 +139,6 @@ public class RequestRunnable implements Runnable{
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
-
         }
         executeManger.processEnd(this);
     }

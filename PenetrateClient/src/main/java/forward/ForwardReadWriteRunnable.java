@@ -33,21 +33,21 @@ public class ForwardReadWriteRunnable implements Runnable{
         }
         while (true) {
             try {
-                //获取web service的连接
-                Socket serviceClientSocket = forwardConnect.serviceConnect.serviceClient;
-                //和web service的连接通道没有打开,打开连接
-                if(serviceClientSocket == null || serviceClientSocket.isClosed()) {
-                    forwardConnect.serviceConnect.startServiceConnect();
-                    Thread.sleep(500);
-                    continue;
-                }
-                //将forward读取出来的数据写入到webservice的连接通道上
-                webServiceOS = serviceClientSocket.getOutputStream();
                 int size = 0;
                 while((size = forwardIS.read(buffer)) != -1) {
                     System.out.println("size: "+size);
                     String res = new String(buffer,"UTF-8");
                     System.out.println(res);
+                    //获取web service的连接
+                    Socket serviceClientSocket = forwardConnect.serviceConnect.serviceClient;
+                    //和web service的连接通道没有打开,打开连接
+                    if(serviceClientSocket == null || serviceClientSocket.isClosed()) {
+                        forwardConnect.serviceConnect.startServiceConnect();
+                        Thread.sleep(500);
+                        continue;
+                    }
+                    //将forward读取出来的数据写入到webservice的连接通道上
+                    webServiceOS = serviceClientSocket.getOutputStream();
                     if (size > -1 && !(serviceClientSocket == null || serviceClientSocket.isClosed())) {
                         webServiceOS.write(buffer, 0, size);
                     }
