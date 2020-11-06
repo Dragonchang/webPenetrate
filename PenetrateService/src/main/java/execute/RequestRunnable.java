@@ -140,7 +140,7 @@ public class RequestRunnable implements Runnable{
     }
 
     private void processRequestResponse(SocketChannel readChannel, SocketChannel writeChannel) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(10240);
+        ByteBuffer buffer = ByteBuffer.allocate(1024*4);
         int size = 0;
         while ((size = readChannel.read(buffer)) > 0) {
             System.out.println("开始读取数据进行写入大小："+size);
@@ -148,6 +148,7 @@ public class RequestRunnable implements Runnable{
             String str = new String(buffer.array(), 0, size);
             System.out.println(str);
             writeChannel.write(buffer);
+            buffer.clear();
         }
     }
 }
