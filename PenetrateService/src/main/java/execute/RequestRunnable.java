@@ -67,7 +67,7 @@ public class RequestRunnable implements Runnable{
 
     @Override
     public void run() {
-        System.out.println("开始处理请求 "+requestClientConnect.toString());
+        System.out.println("开始处理请求 "+requestClientConnect.toString()+" threadID: "+Thread.currentThread().getId());
         Integer connectCount = forwardConnectPoolManager.getConnectCount();
         //TODO 发送404http错误
         while (connectCount <= 0) {
@@ -93,7 +93,7 @@ public class RequestRunnable implements Runnable{
         do {
             forwardConnect = forwardConnectPoolManager.getAvailableConnect();
             if(forwardConnect != null) {
-                System.out.println("获取到可用的转发链接"+ forwardConnect.toString());
+                System.out.println("获取到可用的转发链接"+ forwardConnect.toString()+" threadID: "+Thread.currentThread().getId());
                 break;
             }
             System.out.println("等待可用的转发链接");
@@ -108,7 +108,7 @@ public class RequestRunnable implements Runnable{
         try {
             forwardConnect.register(selector, SelectionKey.OP_READ);
             while (!requestProcessEnd) {
-                System.out.println("开始轮询请求连接和转发连接");
+                System.out.println("开始轮询请求连接和转发连接 threadID: "+Thread.currentThread().getId());
                 int count = selector.select();
                 if(count > 0) {
                     Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
@@ -118,11 +118,11 @@ public class RequestRunnable implements Runnable{
                         if(key.isValid() && key.isReadable()){
                             SocketChannel channel = (SocketChannel)key.channel();
                             if(channel == requestClientConnect) {
-                                System.out.println("开始读取请求连接的数据： "+requestClientConnect.toString());
+                                System.out.println("开始读取请求连接的数据： threadID: "+Thread.currentThread().getId()+" 连接："+requestClientConnect.toString());
                                 processRequestResponse(channel, forwardConnect);
                             }
                             if(channel == forwardConnect) {
-                                System.out.println("开始读取转发连接响应的数据： "+forwardConnect.toString());
+                                System.out.println("开始读取转发连接响应的数据threadID: "+Thread.currentThread().getId()+" 连接："+forwardConnect.toString());
                                 processRequestResponse(channel, requestClientConnect);
                                 requestProcessEnd = true;
                             }
@@ -149,10 +149,8 @@ public class RequestRunnable implements Runnable{
         ByteBuffer buffer = ByteBuffer.allocate(1024*4);
         int size = 0;
         while ((size = readChannel.read(buffer)) > 0) {
-            System.out.println("开始读取数据进行写入大小："+size);
+            System.out.println("开始读取数据进行写入大小："+size+" threadID: "+Thread.currentThread().getId());
             buffer.flip();
-            String str = new String(buffer.array(), 0, size);
-            System.out.println(str);
             writeChannel.write(buffer);
             buffer.clear();
         }

@@ -35,6 +35,12 @@ public class ServiceConnect {
         this.forwardChannel = channel;
     }
 
+    /**
+     * 开始连接web服务器
+     * @param selector
+     * @return
+     * @throws Exception
+     */
     public SocketChannel startServiceConnect(Selector selector) throws Exception {
         InetSocketAddress isa = new InetSocketAddress(webServiceAddress, webServicePort);
         webServiceClient = SocketChannel.open(isa);
@@ -43,6 +49,9 @@ public class ServiceConnect {
         return webServiceClient;
     }
 
+    /**
+     * 从转发连接上读取数据写入到web连接上
+     */
     public void writeData() {
         try {
             System.out.println("开始读取forward连接上的数据");
@@ -53,6 +62,9 @@ public class ServiceConnect {
         }
     }
 
+    /**
+     * 从web服务器连接上读取数据写入到转发连接上
+     */
     public void readData() {
         try {
             System.out.println("开始读取forward连接上的数据");
@@ -71,7 +83,7 @@ public class ServiceConnect {
     }
 
     private void processRequestResponse(SocketChannel readChannel, SocketChannel writeChannel) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        ByteBuffer buffer = ByteBuffer.allocate(1024*4);
         int size = 0;
         while ((size = readChannel.read(buffer)) > 0) {
             System.out.println("开始读取数据进行写入大小：" + size);

@@ -42,7 +42,6 @@ public class ForwardConnectManger {
                 int count = selector.select();
                 if(count > 0) {
                     Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
-
                     while (iterator.hasNext()) {
                         SelectionKey key = iterator.next();
                         iterator.remove();
@@ -60,7 +59,6 @@ public class ForwardConnectManger {
                                 webConnect.readData();
                                 System.out.println("web服务数据处理结束*******************************END！！");
                             }
-
                         }
                     }
                 }
