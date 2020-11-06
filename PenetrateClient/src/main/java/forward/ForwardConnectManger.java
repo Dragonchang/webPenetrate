@@ -41,8 +41,10 @@ public class ForwardConnectManger {
                 int count = selector.select();
                 if(count > 0) {
                     Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
+
                     while (iterator.hasNext()) {
                         SelectionKey key = iterator.next();
+                        iterator.remove();
                         //若此key的通道是等待接受新的套接字连接
                         if(key.isValid() && key.isReadable()){
                             SocketChannel channel = (SocketChannel)key.channel();

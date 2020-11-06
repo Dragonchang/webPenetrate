@@ -61,11 +61,10 @@ public class RequestResponseListener {
                     Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
                     while (iterator.hasNext()) {
                         SelectionKey key = iterator.next();
-
+                        //一定要把这个accpet状态的服务器key去掉，否则会出错
+                        iterator.remove();
                         //若此key的通道是等待接受新的套接字连接
                         if (key.isAcceptable()) {
-                            //一定要把这个accpet状态的服务器key去掉，否则会出错
-                            iterator.remove();
                             ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
                             //接受socket
                             SocketChannel socket = serverChannel.accept();

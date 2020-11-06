@@ -108,8 +108,8 @@ public class RequestRunnable implements Runnable{
                     Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
                     while(iterator.hasNext()) {
                         SelectionKey key = iterator.next();
+                        iterator.remove();
                         if(key.isValid() && key.isReadable()){
-
                             SocketChannel channel = (SocketChannel)key.channel();
                             if(channel == requestClientConnect) {
                                 System.out.println("开始读取请求连接的数据： "+requestClientConnect.toString());
