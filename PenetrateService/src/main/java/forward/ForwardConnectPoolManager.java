@@ -12,12 +12,15 @@ import java.nio.channels.SocketChannel;
 public class ForwardConnectPoolManager {
     private ForwardListener forwardListener;
 
+    private int availableCount;
+
     /**
      * 开始进行转发链接的处理
      */
     public void startConnectPool() {
         forwardListener = new ForwardListener(this);
         forwardListener.startForwardListen();
+        availableCount = 1;
     }
 
     /**
@@ -32,16 +35,29 @@ public class ForwardConnectPoolManager {
      * 获取可用的链接数
      * @return
      */
-    public Integer getAvailableConnectCount() {
-        return 1;
+    synchronized public Integer getAvailableConnectCount() {
+        System.out.println(" getAvailableConnectCount availableCount: "+availableCount);
+        return availableCount;
     }
 
-    public SocketChannel getAvailableConnect() {
+    /**
+     * 获取可用的转发连接
+     * @return
+     */
+    synchronized public SocketChannel getAvailableConnect() {
         //TODO 连接池获取
         SocketChannel availableConnect = forwardListener.getForwardSocket();
         if(availableConnect == null) {
             return null;
         }
+        availableCount --;
+        System.out.println(" getAvailableConnect availableCount: "+availableCount);
         return availableConnect;
     }
+
+    synchronized public void returnBackConnect() {
+        availableCount++;
+        System.out.println(" returnBackConnect availableCount: "+availableCount);
+    }
+
 }

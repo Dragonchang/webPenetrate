@@ -81,8 +81,13 @@ public class RequestRunnable implements Runnable{
         }
 
         //TODO 转发连接扩容操作
-        if(forwardConnectPoolManager.getAvailableConnectCount() <= 0) {
+        while(forwardConnectPoolManager.getAvailableConnectCount() <= 0) {
             System.out.println("没有可用的连接");
+            try {
+                Thread.sleep(100);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         SocketChannel forwardConnect;
         do {
@@ -136,6 +141,7 @@ public class RequestRunnable implements Runnable{
                 e1.printStackTrace();
             }
         }
+        forwardConnectPoolManager.returnBackConnect();
         executeManger.processEnd(this);
     }
 
