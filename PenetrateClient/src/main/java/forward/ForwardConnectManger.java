@@ -15,14 +15,15 @@ import webService.*;
  */
 public class ForwardConnectManger {
 
-    /**
-     * 连接池大小
-     */
-    private int ConnectPoolSize = 1;
     //TODO
     private SocketChannel forwardConnect;
+    /**
+     * web 服务端的连接
+     */
+    private SocketChannel webServiceClient;
     private Selector selector;
     private ForwardConnect connect;
+    private ServiceConnect webConnect;
 
     public ForwardConnectManger() {
         try {
@@ -47,14 +48,19 @@ public class ForwardConnectManger {
                         iterator.remove();
                         //若此key的通道是等待接受新的套接字连接
                         if(key.isValid() && key.isReadable()){
-                            SocketChannel channel = (SocketChannel)key.channel();
-                            System.out.println("有服务转发连接的读数据请求到来: "+channel.toString()+" *****************N: "+n);
-                            //startForwardReadWriteThread(channel);
-                            //TODO
-                            ServiceConnect connect = new ServiceConnect(channel);
-                            connect.run();
-                            n++;
-                            System.out.println("转发数据处理结束*******************************END！！");
+                            if(key.channel() == forwardConnect) {
+                                SocketChannel channel = (SocketChannel)key.channel();
+                                System.out.println("有服务转发连接的读数据请求到来: "+channel.toString()+" *****************N: "+n);
+                                webConnect = new ServiceConnect(channel);
+                                webServiceClient = webConnect.startServiceConnect(selector);
+                                webConnect.writeData();
+                                n++;
+                                System.out.println("转发数据处理结束*******************************END！！");
+                            } else {
+                                webConnect.readData();
+                                System.out.println("web服务数据处理结束*******************************END！！");
+                            }
+
                         }
                     }
                 }
@@ -62,17 +68,6 @@ public class ForwardConnectManger {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * 启动对web服务的连接的写读线程
-     *
-     */
-    public void startForwardReadWriteThread(SocketChannel channel) {
-        ServiceConnect connect = new ServiceConnect(channel);
-        String threadName = "forward-read-write";
-        Thread t = new Thread(connect, threadName);
-        t.start();
     }
 
     /**

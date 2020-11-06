@@ -21,7 +21,7 @@ public class RequestResponseListener {
      * 处理请求和响应服务的监听端口
      */
     private static int requestListenPort = 8008;
-    private static String LocalHost = "104.36.67.68";
+    private static String LocalHost = "127.0.0.1";
 
     /**
      * 处理请求和响应服务监听socket
@@ -38,11 +38,11 @@ public class RequestResponseListener {
     public RequestResponseListener(RequestExecuteManger manager) {
         this.manager = manager;
         try {
-            selector = Selector.open();
             serverSocket = ServerSocketChannel.open();
             InetSocketAddress isa = new InetSocketAddress(LocalHost, requestListenPort);
             serverSocket.socket().bind(isa);
             serverSocket.configureBlocking(false);
+            selector = Selector.open();
             serverSocket.register(selector, SelectionKey.OP_ACCEPT);
         } catch (Exception e) {
             e.printStackTrace();
