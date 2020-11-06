@@ -99,9 +99,10 @@ public class RequestRunnable implements Runnable{
             }
         } while (true);
 
+        boolean requestProcessEnd = false;
         try {
             forwardConnect.register(selector, SelectionKey.OP_READ);
-            while (true) {
+            while (!requestProcessEnd) {
                 System.out.println("开始轮询请求连接和转发连接");
                 int count = selector.select();
                 if(count > 0) {
@@ -118,14 +119,7 @@ public class RequestRunnable implements Runnable{
                             if(channel == forwardConnect) {
                                 System.out.println("开始读取转发连接响应的数据： "+forwardConnect.toString());
                                 processRequestResponse(channel, requestClientConnect);
-                                try {
-                                    requestClientConnect.socket().close();
-                                    requestClientConnect.close();
-                                } catch (IOException e1) {
-                                    e1.printStackTrace();
-                                }
-                                selector.close();
-                                return;
+                                requestProcessEnd = true;
                             }
                         }
                     }
@@ -133,9 +127,11 @@ public class RequestRunnable implements Runnable{
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
             try {
                 requestClientConnect.socket().close();
                 requestClientConnect.close();
+                selector.close();
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
