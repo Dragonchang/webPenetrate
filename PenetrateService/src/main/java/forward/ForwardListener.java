@@ -20,7 +20,7 @@ public class ForwardListener {
      */
     private static int forwardListenPort = 12345;
     //private static String LocalHost = "104.36.67.68";
-    private static String LocalHost = "127.0.0.1";
+    private static String LocalHost = "104.36.67.68";
 
     /**
      * 转发服务监听socket

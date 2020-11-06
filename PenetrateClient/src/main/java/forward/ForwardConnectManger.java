@@ -32,9 +32,9 @@ public class ForwardConnectManger {
             e.printStackTrace();
         }
     }
-
     public void start() {
         initConnectPool();
+        int n= 0;
         try {
             while (true) {
                 System.out.println("开始accept转发连接上的请求读操作");
@@ -48,8 +48,13 @@ public class ForwardConnectManger {
                         //若此key的通道是等待接受新的套接字连接
                         if(key.isValid() && key.isReadable()){
                             SocketChannel channel = (SocketChannel)key.channel();
-                            System.out.println("有服务转发连接的读数据请求到来: "+channel.toString());
-                            startForwardReadWriteThread(channel);
+                            System.out.println("有服务转发连接的读数据请求到来: "+channel.toString()+" *****************N: "+n);
+                            //startForwardReadWriteThread(channel);
+                            //TODO
+                            ServiceConnect connect = new ServiceConnect(channel);
+                            connect.run();
+                            n++;
+                            System.out.println("转发数据处理结束*******************************END！！");
                         }
                     }
                 }

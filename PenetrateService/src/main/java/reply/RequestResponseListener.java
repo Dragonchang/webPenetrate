@@ -21,7 +21,7 @@ public class RequestResponseListener {
      * 处理请求和响应服务的监听端口
      */
     private static int requestListenPort = 8008;
-    private static String LocalHost = "127.0.0.1";
+    private static String LocalHost = "104.36.67.68";
 
     /**
      * 处理请求和响应服务监听socket
