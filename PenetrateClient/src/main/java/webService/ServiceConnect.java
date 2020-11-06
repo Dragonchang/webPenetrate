@@ -36,6 +36,7 @@ public class ServiceConnect implements Runnable{
     private void startServiceConnect() throws Exception{
         InetSocketAddress isa = new InetSocketAddress(webServiceAddress, webServicePort);
         webServiceClient = SocketChannel.open(isa);
+        //webServiceClient.configureBlocking(false);
     }
 
     @Override
@@ -61,7 +62,7 @@ public class ServiceConnect implements Runnable{
     }
 
     private void processRequestResponse(SocketChannel readChannel, SocketChannel writeChannel) throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        ByteBuffer buffer = ByteBuffer.allocate(10240);
         int size = 0;
         while ((size = readChannel.read(buffer)) > 0) {
             System.out.println("开始读取数据进行写入大小："+size);

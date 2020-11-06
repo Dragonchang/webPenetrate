@@ -19,6 +19,8 @@ public class ForwardListener {
      * 转发服务监听端口
      */
     private static int forwardListenPort = 12345;
+    //private static String LocalHost = "104.36.67.68";
+    private static String LocalHost = "127.0.0.1";
 
     /**
      * 转发服务监听socket
@@ -42,7 +44,7 @@ public class ForwardListener {
         try {
             selector = Selector.open();
             forwardListenSocket = ServerSocketChannel.open();
-            InetSocketAddress isa = new InetSocketAddress("127.0.0.1", forwardListenPort);
+            InetSocketAddress isa = new InetSocketAddress(LocalHost, forwardListenPort);
             forwardListenSocket.socket().bind(isa);
             forwardListenSocket.configureBlocking(false);
             forwardListenSocket.register(selector, SelectionKey.OP_ACCEPT);

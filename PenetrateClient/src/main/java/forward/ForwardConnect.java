@@ -15,7 +15,7 @@ public class ForwardConnect {
     /**
      * 转发服务地址
      */
-    //private static String forwardServiceAddress = "10.16.33.73";
+    //private static String forwardServiceAddress = "104.36.67.68";
     private static String forwardServiceAddress = "localhost";
     /**
      * 转发服务端口
