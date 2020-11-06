@@ -1,8 +1,4 @@
-import forward.ForwardConnect;
 import forward.ForwardConnectManger;
-import webService.ServiceConnect;
-
-import java.io.IOException;
 
 /**
  * @program: webPenetrate
@@ -12,10 +8,8 @@ import java.io.IOException;
  **/
 public class PenetrateClientMain {
 
-    public static void main(String[] args) throws IOException {
-
+    public static void main(String[] args) {
         ForwardConnectManger manger = new ForwardConnectManger();
         manger.start();
     }
-
 }

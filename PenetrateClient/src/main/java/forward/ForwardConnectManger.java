@@ -4,6 +4,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import webService.*;
 
 /**
  * @author ：dragonChang
@@ -36,12 +37,18 @@ public class ForwardConnectManger {
         initConnectPool();
         try {
             while (true) {
-                System.out.println("开始accept转发连接上的请求");
+                System.out.println("开始accept转发连接上的请求读操作");
                 int count = selector.select();
                 if(count > 0) {
                     Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
                     while (iterator.hasNext()) {
                         SelectionKey key = iterator.next();
+                        //若此key的通道是等待接受新的套接字连接
+                        if(key.isValid() && key.isReadable()){
+                            SocketChannel channel = (SocketChannel)key.channel();
+                            System.out.println("有服务转发连接的读数据请求到来: "+channel.toString());
+                            startForwardReadWriteThread(channel);
+                        }
                     }
                 }
             }
@@ -51,9 +58,31 @@ public class ForwardConnectManger {
     }
 
     /**
+     * 启动对web服务的连接的写读线程
+     *
+     */
+    public void startForwardReadWriteThread(SocketChannel channel) {
+        ServiceConnect connect = new ServiceConnect(channel);
+        String threadName = "forward-read-write";
+        Thread t = new Thread(connect, threadName);
+        t.start();
+    }
+
+    /**
      * 初始化转发的连接池
      */
     private void initConnectPool() {
-        forwardConnect = connect.connectForwardService();
+        while (true) {
+            try {
+                System.out.println("开始连接forward服务器");
+                forwardConnect = connect.connectForwardService();
+                System.out.println("连接forward服务器成功："+forwardConnect.toString());
+                if(forwardConnect != null && forwardConnect.isConnected()) {
+                    break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

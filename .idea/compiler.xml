@@ -11,7 +11,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="PenetrateClient" target="1.5" />
+      <module name="PenetrateClient" target="6" />
       <module name="PenetrateService" target="6" />
     </bytecodeTargetLevel>
   </component>

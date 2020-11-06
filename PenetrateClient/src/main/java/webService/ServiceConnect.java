@@ -1,7 +1,9 @@
 package webService;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 
 /**
  * @program: webPenetrate
@@ -9,7 +11,7 @@ import java.net.Socket;
  * @author: zhangfl
  * @create: 2020-11-02 11:40
  **/
-public class ServiceConnect {
+public class ServiceConnect implements Runnable{
     /**
      * web 服务地址
      */
@@ -23,20 +25,50 @@ public class ServiceConnect {
     /**
      * web 服务端的连接
      */
-    public Socket serviceClient;
+    private SocketChannel webServiceClient;
 
-    public void startServiceConnect() {
+    private SocketChannel forwardChannel;
+
+    public ServiceConnect(SocketChannel channel) {
+        this.forwardChannel = channel;
+    }
+
+    private void startServiceConnect() throws Exception{
+        InetSocketAddress isa = new InetSocketAddress(webServiceAddress, webServicePort);
+        webServiceClient = SocketChannel.open(isa);
+    }
+
+    @Override
+    public void run() {
         try {
-            serviceClient = new Socket(webServiceAddress, webServicePort);
+            System.out.println("开始连接web服务器");
+            startServiceConnect();
+            System.out.println("web服务器连接成功");
+            System.out.println("开始读取forward连接上的数据");
+            processRequestResponse(forwardChannel, webServiceClient);
+            System.out.println("读取forward连接上的数据结束而且成功写入web服务的连接上");
+            processRequestResponse(webServiceClient, forwardChannel);
+            System.out.println("读取web服务器连接上的数据结束而且成功写入forward的连接上");
+            try {
+                webServiceClient.socket().close();
+                webServiceClient.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
-    public static void main(String[] args) throws IOException {
-        ServiceConnect connect = new ServiceConnect();
-        connect.serviceClient = new Socket(webServiceAddress, webServicePort);
-        connect.serviceClient.setSoTimeout(10000);
+    private void processRequestResponse(SocketChannel readChannel, SocketChannel writeChannel) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        int size = 0;
+        while ((size = readChannel.read(buffer)) > 0) {
+            System.out.println("开始读取数据进行写入大小："+size);
+            buffer.flip();
+            String str = new String(buffer.array(), 0, size);
+            System.out.println(str);
+            writeChannel.write(buffer);
+        }
     }
 }
