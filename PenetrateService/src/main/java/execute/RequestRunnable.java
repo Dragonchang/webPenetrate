@@ -38,6 +38,12 @@ public class RequestRunnable implements Runnable{
     private Selector selector;
     private SelectionKey serverKey;
 
+    /**
+     * LF.
+     */
+    public static final byte LF = (byte) '\n';
+
+
     public RequestRunnable(RequestExecuteManger executeManger, SocketChannel socket) {
         this.executeManger = executeManger;
         this.requestClientConnect = socket;
@@ -119,7 +125,7 @@ public class RequestRunnable implements Runnable{
                             SocketChannel channel = (SocketChannel)key.channel();
                             if(channel == requestClientConnect) {
                                 System.out.println("开始读取请求连接的数据： threadID: "+Thread.currentThread().getId()+" 连接："+requestClientConnect.toString());
-                                processRequestResponse(channel, forwardConnect);
+                                processRequest(channel, forwardConnect);
                             }
                             if(channel == forwardConnect) {
                                 System.out.println("开始读取转发连接响应的数据threadID: "+Thread.currentThread().getId()+" 连接："+forwardConnect.toString());
@@ -145,14 +151,55 @@ public class RequestRunnable implements Runnable{
         executeManger.processEnd(this);
     }
 
-    private void processRequestResponse(SocketChannel readChannel, SocketChannel writeChannel) throws IOException {
+    private void processRequest(SocketChannel readChannel, SocketChannel writeChannel) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(1024*4);
         int size = 0;
         while ((size = readChannel.read(buffer)) > 0) {
             System.out.println("开始读取数据进行写入大小："+size+" threadID: "+Thread.currentThread().getId());
             buffer.flip();
+            String str = new String(buffer.array(), 0, size);
+            System.out.println(str);
             writeChannel.write(buffer);
             buffer.clear();
+        }
+    }
+
+
+    private void processRequestResponse(SocketChannel readChannel, SocketChannel writeChannel) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(1024*4);
+        int size = 0;
+        StringBuffer response = new StringBuffer();
+        while ((size = readChannel.read(buffer)) > 0 || !isResponseEnd(response.toString())) {
+            System.out.println("开始读取数据进行写入大小："+size+" threadID: "+Thread.currentThread().getId());
+            buffer.flip();
+            String str = new String(buffer.array(), 0, size);
+            response.append(str);
+            System.out.println(response.toString());
+            writeChannel.write(buffer);
+            buffer.clear();
+        }
+    }
+
+    private boolean isResponseEnd(String response) {
+        int count = 0;
+        int index = 0;
+        byte[] bytes = response.getBytes();
+        while (index < bytes.length ) {
+            if(bytes[index] == LF) {
+                int indexCR = index + 2;
+                if(indexCR < bytes.length && bytes[indexCR] == LF) {
+                    count ++;
+                }
+            }
+            index++;
+        }
+
+        if(count > 1) {
+            System.out.println("响应接收完成");
+            return true;
+        } else {
+            System.out.println("响应接收没有完成");
+            return false;
         }
     }
 }
